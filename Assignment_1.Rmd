@@ -1,0 +1,60 @@
+---
+title: "Assignment 1"
+author: "Sean Bradford"
+date: "June 29, 2022"
+output:
+  html_document:
+    df_print: paged
+  word_document: default
+subtitle: 'Description: This assignment involved installing/configuring R and dependent
+  libraries, running commands against Carseats dataset, and evaluating results of
+  plotting Sales against Price to determine their correlation.'
+---
+
+1.
+Installed ISLR library and called library(ISLR).
+
+install.packages('ISLR')
+
+library(ISLR)
+
+
+2.
+```{r}
+# Call ISLR library
+library(ISLR)
+# Print summary of Carseats
+summary(Carseats)
+```
+```{r}
+# Determine number of rows in Carseats
+nrow(Carseats)
+```
+The dataset contains 400 rows.
+
+3.
+The max value for advertising is 29.000
+
+4.
+```{r}
+# Calculate IQR for Price
+IQR(Carseats$Price)
+```
+IQR for Price is 31
+
+5.
+```{r}
+# Plot Sales vs. Price
+plot(Carseats$Price,Carseats$Sales)
+```
+
+Sales is slightly correlated with price. As price increases, sales decreases. 
+```{r}
+# Calculate correlation between Sales and Price
+cor(Carseats$Price,Carseats$Sales)
+```
+The negative correlation coefficient suggests that sales decrease as prices increase. Its value of -0.4449507 suggests a weak correlation.
+
+6. Added description and title in header. Included comments next to code.
+
+7. Knitted output file to html.
