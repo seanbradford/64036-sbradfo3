@@ -1,0 +1,101 @@
+---
+title: "Assignment 3"
+author: "Sean Bradford"
+subtitle: 'Description: Construct and evaluate regression models using R to answer
+  the assignment questions.'
+output:
+  pdf_document: default
+  html_notebook: default
+  html_document:
+    df_print: paged
+  word_document: default
+---
+
+1.
+```{r}
+set.seed(2017)
+X=runif(100)*10
+Y=X*4+3.45
+Y=rnorm(100)*0.29*Y+Y
+```
+
+1a.
+```{r}
+plot(Y~X,xlab="X",ylab="Y",col="black")
+```
+The plot shows a linear relationship for Y based on X. As X increases, the values for Y increase as well. Based on this, we can fit a linear model to explain Y based on X.
+
+1b.
+```{r}
+model1=lm(Y~X)
+model1 #y=4.465 + 3.611X
+summary(model1)
+```
+Equation that explains Y based on x: y = 4.465 + 3.611X.
+Model accuracy is .6517 or 65%.
+
+1c.
+```{r}
+sqrt(0.6517)
+```
+The square root of the coefficient of determination is equal to the correlation coefficient.
+
+2.
+```{r}
+summary(mtcars)
+```
+
+2a.
+James Prediction
+```{r}
+JModel=lm(mtcars$hp~mtcars$wt)
+summary(JModel)
+```
+Chris Prediction
+```{r}
+CModel=lm(mtcars$hp~mtcars$mpg)
+summary(CModel)
+```
+Chris's opinion is "right", compared to James's opinion. The accuracy of Chris's model is 0.6024, which is greater than the accuracy of James's model at 0.4339.
+
+2b.
+```{r}
+hp_model=lm(hp~cyl+mpg,data=mtcars)
+predict(hp_model,data.frame(cyl=4,
+                            mpg=22))
+```
+The average estimated Horse Power of a car with 4 calendar and a mpg of 22 is 88.94.
+
+3.
+```{r}
+options(repos = list(CRAN="http://cran.rstudio.com/"))
+install.packages('mlbench')
+library(mlbench)
+data(BostonHousing)
+```
+
+3a.
+```{r}
+Home_Value=lm(medv~crim+zn+ptratio+chas,data=BostonHousing)
+summary(Home_Value)
+```
+This model is not accurate due to its Multiple R-squared (accuracy) of 0.3599.
+
+3b. 
+
+I. The house that bounds the Chas River is more expensive by a multiple of 4.58393. This is true because the coefficient of chas is 4.58393. If the other house costs $1000, then the identical house that bounds the Chas River would cost $4,583.93.
+
+II. The house in the neighborhood with a pupil-teacher ratio of 15 is more expensive. This is true because the coefficient of ptratio is -1.49367, meaning that each increase of one unit in ptratio would decrease the house price by 1.49367. The value of the house with a ptratio of 15 decreases by (15x1493.67) $22,405.05. The value of the house with a ptratio of 18 decreases by (18x1493.67) $26,886.06. The house with a ptratio of 15 is more expensive by $4,481.01.
+
+3c. Since the p-values of each coefficient are less than 0.05, we can say that each variable is statistically significant.
+
+3d. 
+```{r}
+anova(Home_Value)
+```
+Order of importance ranked 1-4 (1 = most important, 4 = least important):
+  1. crim
+  2. ptratio
+  3. zn
+  4. chas
+The larger the sum squared, the more importance given to the variable.
