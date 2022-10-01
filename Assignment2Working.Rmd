@@ -1,0 +1,187 @@
+---
+title: "Assignment 2"
+author: "Sean Bradford"
+date: "June 29, 2022"
+output:
+  pdf_document: default
+  word_document: default
+  html_document:
+    df_print: paged
+subtitle: 'Description: This assignment involved using data transformation, data wrangling,
+  and data exploration to answer different questions regarding the "Online Retail"
+  dataset.'
+---
+
+Downloaded Online Retail dataset and assigned it to 'Retail' as a dataframe.
+```{r}
+Retail=read.csv("Mod4_Online_Retail (3).csv")
+as.data.frame(Retail)
+```
+
+(1.)
+```{r}
+library(dplyr)
+question1=Retail %>%
+  group_by(Country) %>%
+  summarise(txns=n(),pct=n()*100/nrow(Retail)) %>%
+  filter(pct>1)
+
+question1
+```
+
+(2.)
+```{r}
+Retail=Retail %>%
+  mutate(TransactionValue=Quantity*UnitPrice)
+
+summary(Retail) #ensuring variable was added to dataset
+```
+
+(3.)
+```{r}
+question3=Retail %>%
+  group_by(Country) %>%
+  summarise(totalsum=sum(TransactionValue)) %>%
+  filter(totalsum > 130000)
+
+question3
+```
+
+(4.)
+```{r}
+Temp=strptime(Retail$InvoiceDate,format='%m/%d/%Y %H:%M',tz='GMT')
+head(Temp)
+
+Retail$New_Invoice_Date=as.Date(Temp)
+Retail$New_Invoice_Date[20000]-Retail$New_Invoice_Date[10]
+
+Retail$Invoice_Day_Week=weekdays(Retail$New_Invoice_Date)
+
+Retail$New_Invoice_Hour=as.numeric(format(Temp,"%H"))
+
+Retail$New_Invoice_Month=as.numeric(format(Temp,"%m"))
+```
+(4a.)
+```{r}
+FourA=summarise(group_by(Retail,Invoice_Day_Week),TransactionValue=n_distinct(InvoiceNo))
+FourAa=mutate(FourA,transaction_percent=(TransactionValue/sum(TransactionValue))*100)
+FourAa
+```
+(4b.)
+```{r}
+FourB=summarise(group_by(Retail,Invoice_Day_Week),Transaction_Volume=sum(TransactionValue))
+FourBb=mutate(FourB,percentage=(Transaction_Volume/sum(Transaction_Volume))*100)
+FourBb
+```
+(4c.)
+```{r}
+FourC=summarise(group_by(Retail,New_Invoice_Month),Transaction_Volume=sum(TransactionValue))
+FourC=mutate(FourC,percentage=(Transaction_Volume/sum(Transaction_Volume))*100)
+FourC
+```
+(4d.)
+```{r}
+Retail %>%
+  filter(Country=='Australia') %>%
+  group_by(New_Invoice_Date) %>%
+  summarise(Max=max(TransactionValue))
+```
+
+
+(5.)
+```{r}
+germanygroup=Retail %>%
+  group_by(Country) %>%
+  filter(Country == 'Germany') %>%
+  select(Country,TransactionValue)
+
+hist(germanygroup$TransactionValue,
+     main="Distribution of Transaction Values from Germany",
+     xlab="Transaction Value",
+     ylab="Number of Transactions",
+     xlim=c(-600,900), #based on min and max
+     breaks=100, #enhanced histogram readability
+     col="blue",
+     freq=TRUE)
+```
+
+(6.)
+```{r}
+Retailnaomit=na.omit(Retail) #removed NA's that were causing calculation errors
+
+MostValCust=Retailnaomit %>%
+  group_by(CustomerID) %>%
+  summarise(sumtxns=sum(TransactionValue))
+
+MostValCust[which.max(MostValCust$sumtxns),]
+```
+
+```{r}
+RetTable=table(Retailnaomit$CustomerID)
+RetTable=as.data.frame(RetTable)
+
+HighestTxns=RetTable[which.max(RetTable$Freq),]
+
+HighestTxns
+```
+Customer 17841 had the highest number of transactions at 7,983.
+Customer 14646 had the highest total sum of transactions at 279,489.
+
+(7.)
+```{r}
+missingvalues=colMeans(is.na(Retail)*100)
+
+missingvalues
+```
+
+(8.)
+```{r}
+misscustid=Retail %>%
+  filter(is.na(CustomerID)) %>%
+  group_by(Country) %>%
+  summarise(Missing_IDs=sum(is.na(CustomerID)))
+
+misscustid
+```
+There were 135,080 total transactions with missing CustomerID records.
+
+
+(10.)
+```{r}
+FranceCancel=Retail %>%
+  group_by(Country) %>%
+  filter(Country=='France') %>%
+  filter(Quantity<0) %>%
+  summarise(CancelledTxns=n())
+# 149
+
+FranceTxns=Retail %>%
+  group_by(Country) %>%
+  filter(Country=='France') %>%
+  summarise(TotTxns=n())
+# 8557
+
+RR_French_Customers=149/8557
+RR_French_Customers
+```
+The return rate for French customers is 0.017.
+
+(11.)
+```{r}
+BestProduct=Retail %>%
+  group_by(StockCode) %>%
+  summarise(Revenue=sum(TransactionValue))
+
+TheBestProduct=BestProduct[which.max(BestProduct$Revenue),]
+
+TheBestProduct
+```
+Product "DOT" generated the highest revenue at $206,245.50.
+
+(12.)
+```{r}
+UniqueCustomers=unique(Retail$CustomerID)
+
+length(UniqueCustomers)
+```
+There are 4,373 unique customers in the dataset.
